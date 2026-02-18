@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- ═══════════════════════════════════════════
+       EDIT 1: Change to your project name
+       ═══════════════════════════════════════════ -->
+  <title>[PROJECT TITLE] — Aditya Halbe</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow:ital,wght@0,300;0,400;0,600;0,700;0,900;1,300&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    /* Identical design tokens to main portfolio */
+    :root {
+      --bg: #0d0d0d;
+      --surface: #1a1a1a;
+      --line: rgba(255, 255, 255, 0.1);
+      --line-bright: rgba(255, 255, 255, 0.25);
+      --accent: #ffffff;
+      --accent2: #ff0000;
+      --text: #f0f0f0;
+      --muted: #999999;
+      --font-display: 'Times New Roman';
+      --font-mono: 'Share Tech Mono', monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-display);
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* Blueprint grid — identical to main site */
+    body::after {
+      content: '';
+      position: fixed; inset: 0;
+      background-image:
+        linear-gradient(var(--line) 1px, transparent 1px),
+        linear-gradient(90deg, var(--line) 1px, transparent 1px),
+        linear-gradient(rgba(255,255,255,0.07) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.07) 1px, transparent 1px);
+      background-size: 20px 20px, 20px 20px, 100px 100px, 100px 100px;
+      pointer-events: none;
+      z-index: 0;
+    }
+    body > * { position: relative; z-index: 1; }
+
+    /* Crosshair cursor */
+    .cursor {
+      width: 20px; height: 20px;
+      position: fixed; top: 0; left: 0;
+      pointer-events: none; z-index: 9999;
+      transform: translate(-50%, -50%);
+    }
+    .cursor::before, .cursor::after {
+      content: ''; position: absolute; background: var(--accent);
+    }
+    .cursor::before { width: 1px; height: 100%; left: 50%; transform: translateX(-50%); }
+    .cursor::after  { height: 1px; width: 100%; top: 50%; transform: translateY(-50%); }
+    .cursor-dot {
+      width: 4px; height: 4px; border-radius: 50%;
+      background: var(--accent2);
+      position: fixed; top: 0; left: 0;
+      pointer-events: none; z-index: 9999;
+      transform: translate(-50%, -50%);
+    }
+    .cursor-ring {
+      width: 44px; height: 44px;
+      border: 2px solid rgba(255,255,255,0.4);
+      position: fixed; top: 0; left: 0;
+      pointer-events: none; z-index: 9998;
+      transform: translate(-50%, -50%);
+    }
+
+    /* Corner marks */
+    .corner-decor {
+      position: fixed; width: 30px; height: 30px;
+      pointer-events: none; z-index: 50; opacity: 0.4;
+    }
+    .corner-decor::before, .corner-decor::after {
+      content: ''; position: absolute; background: var(--accent);
+    }
+    .corner-decor::before { width: 100%; height: 1px; }
+    .corner-decor::after  { width: 1px; height: 100%; }
+    .corner-tl { top: 20px; left: 20px; }
+    .corner-tr { top: 20px; right: 20px; transform: scaleX(-1); }
+    .corner-bl { bottom: 20px; left: 20px; transform: scaleY(-1); }
+    .corner-br { bottom: 20px; right: 20px; transform: scale(-1); }
+
+    /* Nav */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 22px 52px; z-index: 100;
+      transition: background 0.3s, border-color 0.3s;
+    }
+    nav.scrolled {
+      background: rgba(13,13,13,0.92);
+      border-bottom: 1px solid var(--line-bright);
+      backdrop-filter: blur(12px);
+    }
+    .nav-logo {
+      font-family: var(--font-mono); font-size: 0.85rem;
+      color: var(--accent); letter-spacing: 0.05em;
+      text-decoration: none; cursor: none;
+    }
+    .nav-logo span { color: var(--accent2); }
+    .nav-back {
+      font-family: var(--font-mono); font-size: 0.78rem;
+      color: var(--muted); text-decoration: none;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      transition: color 0.2s; cursor: none;
+    }
+    .nav-back::before { content: '← '; color: var(--accent2); opacity: 0.7; }
+    .nav-back:hover { color: var(--accent); }
+
+    /* Hero */
+    .hero {
+      min-height: 70vh;
+      display: flex; flex-direction: column; justify-content: flex-end;
+      padding: 140px 52px 64px;
+      position: relative; overflow: hidden;
+      border-bottom: 1px solid var(--line-bright);
+    }
+    
+    .atom-bg {
+      position: absolute;
+      right: -80px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 520px;
+      height: 520px;
+      opacity: 1;
+    }
+
+    .hero-eyebrow {
+      font-family: var(--font-mono); font-size: 0.72rem;
+      color: var(--accent2); letter-spacing: 0.18em; text-transform: uppercase;
+      margin-bottom: 16px; opacity: 0; animation: fadeUp 0.7s ease 0.1s forwards;
+    }
+    .hero-eyebrow::before { content: '[ '; }
+    .hero-eyebrow::after  { content: ' ]'; }
+
+    .hero h1 {
+      font-size: clamp(42px, 8vw, 110px);
+      font-weight: 900; line-height: 0.9; letter-spacing: -0.04em;
+      max-width: 900px; opacity: 0; animation: fadeUp 0.7s ease 0.25s forwards;
+    }
+    .hero h1 .solid  { color: var(--text); }
+    .hero h1 .outline {
+      color: transparent;
+      -webkit-text-stroke: 1px rgba(255,255,255,0.3);
+    }
+
+    .hero-sub {
+      margin-top: 40px;
+      display: flex; align-items: flex-end; justify-content: space-between;
+      opacity: 0; animation: fadeUp 0.7s ease 0.4s forwards;
+    }
+    .hero-summary {
+      font-family: var(--font-mono); font-size: 0.9rem;
+      color: var(--muted); line-height: 1.8; max-width: 500px;
+    }
+    .hero-tools { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+    .tool-tag {
+      font-family: var(--font-mono); font-size: 0.65rem;
+      color: var(--muted); border: 1px solid var(--line-bright);
+      padding: 4px 10px; letter-spacing: 0.06em;
+    }
+    .annotation {
+      position: absolute; bottom: 24px; right: 52px;
+      font-family: var(--font-mono); font-size: 0.6rem;
+      color: var(--muted); letter-spacing: 0.08em;
+    }
+
+    /* Spec bar */
+    .spec-bar {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      border-bottom: 1px solid var(--line-bright);
+    }
+    .spec-cell {
+      padding: 28px 36px; border-right: 1px solid var(--line-bright);
+    }
+    .spec-cell:last-child { border-right: none; }
+    .spec-cell-label {
+      font-family: var(--font-mono); font-size: 0.62rem;
+      color: var(--muted); letter-spacing: 0.12em;
+      text-transform: uppercase; margin-bottom: 8px;
+    }
+    .spec-cell-val { font-size: 1rem; font-weight: 700; color: var(--text); }
+    .spec-cell-val.red { color: var(--accent2); }
+
+    /* Shared */
+    .content-wrap { padding: 0 52px; }
+    .section-block { padding: 80px 0; border-bottom: 1px solid var(--line-bright); }
+    .section-block:last-child { border-bottom: none; }
+    .section-label {
+      font-family: var(--font-mono); font-size: 0.68rem;
+      color: var(--accent2); letter-spacing: 0.16em;
+      text-transform: uppercase; margin-bottom: 12px;
+    }
+    .section-title {
+      font-size: clamp(26px, 4vw, 48px); font-weight: 900;
+      letter-spacing: -0.03em; line-height: 1; margin-bottom: 40px;
+    }
+    .divider {
+      display: flex; align-items: center; gap: 20px; padding: 0 52px;
+    }
+    .divider-line { flex: 1; height: 1px; background: var(--line-bright); }
+    .divider-label {
+      font-family: var(--font-mono); font-size: 0.65rem;
+      color: var(--muted); letter-spacing: 0.14em; text-transform: uppercase;
+    }
+    .divider-tick {
+      width: 6px; height: 6px;
+      border: 1px solid var(--accent); transform: rotate(45deg);
+    }
+
+    /* Overview */
+    .overview-grid {
+      display: grid; grid-template-columns: 1.4fr 1fr;
+      gap: 64px; align-items: start;
+    }
+    .body-text { font-size: 1.05rem; font-weight: 300; line-height: 1.85; }
+    .body-text + .body-text { margin-top: 20px; }
+    .body-text strong { color: var(--accent); font-weight: 600; }
+
+    /* Results panel — same as spec-panel on main site */
+    .results-panel {
+      border: 1px solid var(--line-bright); padding: 28px; position: relative;
+    }
+    .results-panel::before {
+      content: 'KEY RESULTS';
+      position: absolute; top: -10px; left: 16px;
+      background: var(--bg); font-family: var(--font-mono);
+      font-size: 0.62rem; color: var(--accent);
+      letter-spacing: 0.12em; padding: 0 8px;
+    }
+    .result-row {
+      display: flex; justify-content: space-between; align-items: baseline;
+      padding: 12px 0; border-bottom: 1px solid var(--line);
+    }
+    .result-row:last-child { border-bottom: none; }
+    .result-label { font-family: var(--font-mono); font-size: 0.7rem; color: var(--muted); }
+    .result-val   { font-family: var(--font-mono); font-size: 0.78rem; color: var(--accent2); font-weight: 700; }
+
+    /* Images */
+    .img-full { width: 100%; object-fit: cover; display: block; border: 1px solid var(--line-bright); }
+    .img-placeholder {
+      width: 100%; aspect-ratio: 16/9;
+      border: 1px solid var(--line-bright); background: var(--surface);
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+    }
+    .img-placeholder-label {
+      font-family: var(--font-mono); font-size: 0.7rem;
+      color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase;
+    }
+    .img-placeholder-sub { font-family: var(--font-mono); font-size: 0.6rem; color: rgba(153,153,153,0.4); }
+    .img-caption { font-family: var(--font-mono); font-size: 0.65rem; color: var(--muted); margin-top: 10px; }
+    .img-grid-2 {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 1px; background: var(--line-bright);
+      border: 1px solid var(--line-bright); margin-top: 24px;
+    }
+    .img-grid-2 .img-placeholder { border: none; aspect-ratio: 4/3; }
+    .img-grid-2 img { border: none; width: 100%; object-fit: cover; display: block; }
+
+    /* Process */
+    .process-list { display: flex; flex-direction: column; }
+    .process-step {
+      display: grid; grid-template-columns: 80px 1fr;
+      gap: 32px; padding: 36px 0;
+      border-top: 1px solid var(--line-bright); align-items: start;
+    }
+    .process-step:last-child { border-bottom: 1px solid var(--line-bright); }
+    .step-num {
+      font-size: 2.5rem; font-weight: 900;
+      color: var(--line-bright); letter-spacing: -0.04em; line-height: 1;
+    }
+    .step-title { font-size: 1.05rem; font-weight: 700; margin-bottom: 10px; }
+    .step-desc { font-family: var(--font-mono); font-size: 0.78rem; color: var(--muted); line-height: 1.8; }
+
+    /* Challenges & Learnings */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+    .card-panel { border: 1px solid var(--line-bright); padding: 28px; position: relative; }
+    .card-panel::before {
+      position: absolute; top: -10px; left: 16px;
+      background: var(--bg); font-family: var(--font-mono);
+      font-size: 0.62rem; letter-spacing: 0.12em; padding: 0 8px;
+    }
+    .card-panel.challenges::before { content: 'CHALLENGES'; color: var(--accent2); }
+    .card-panel.learnings::before  { content: 'LEARNINGS';  color: var(--accent); }
+    .card-list { list-style: none; display: flex; flex-direction: column; gap: 14px; margin-top: 8px; }
+    .card-list li {
+      font-family: var(--font-mono); font-size: 0.75rem;
+      color: var(--muted); line-height: 1.7;
+      padding-left: 18px; position: relative;
+    }
+    .card-list li::before { content: '→'; position: absolute; left: 0; }
+    .card-panel.challenges .card-list li::before { color: var(--accent2); }
+    .card-panel.learnings  .card-list li::before { color: var(--accent); }
+
+    /* Buttons */
+    .links-row { display: flex; gap: 16px; flex-wrap: wrap; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 13px 28px; font-family: var(--font-mono);
+      font-size: 0.78rem; text-decoration: none;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      border: none; cursor: none; transition: all 0.2s;
+    }
+    .btn-primary { background: var(--accent); color: var(--bg); }
+    .btn-primary:hover { background: #cccccc; transform: translateY(-2px); }
+    .btn-outline { background: transparent; color: var(--accent); border: 1px solid var(--line-bright); }
+    .btn-outline:hover { border-color: var(--accent); transform: translateY(-2px); }
+
+    /* Status pill */
+    .status-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-family: var(--font-mono); font-size: 0.65rem;
+      color: var(--muted); letter-spacing: 0.08em;
+    }
+    .status-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: #3ddc84; box-shadow: 0 0 6px #3ddc84;
+      animation: pulse 2.5s ease-in-out infinite;
+    }
+    .status-dot.wip { background: var(--accent2); box-shadow: 0 0 6px var(--accent2); }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+    /* Footer */
+    footer {
+      padding: 32px 52px; border-top: 1px solid var(--line-bright);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .footer-copy { font-family: var(--font-mono); font-size: 0.65rem; color: var(--muted); }
+    .footer-back {
+      font-family: var(--font-mono); font-size: 0.65rem;
+      color: var(--muted); text-decoration: none; cursor: none; transition: color 0.2s;
+    }
+    .footer-back:hover { color: var(--accent); }
+
+    /* Animations */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .reveal { opacity: 0; transform: translateY(32px); transition: opacity 0.7s ease, transform 0.7s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      nav { padding: 18px 24px; }
+      .hero { padding: 100px 24px 48px; }
+      .content-wrap { padding: 0 24px; }
+      .spec-bar { grid-template-columns: 1fr 1fr; }
+      .spec-cell { padding: 20px 20px; }
+      .overview-grid, .two-col { grid-template-columns: 1fr; gap: 40px; }
+      .process-step { grid-template-columns: 48px 1fr; gap: 16px; }
+      .img-grid-2 { grid-template-columns: 1fr; }
+      .divider { padding: 0 24px; }
+      footer { flex-direction: column; gap: 10px; }
+      .hero-sub { flex-direction: column; gap: 24px; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-dot" id="cursorDot"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+
+  <div class="corner-decor corner-tl"></div>
+  <div class="corner-decor corner-tr"></div>
+  <div class="corner-decor corner-bl"></div>
+  <div class="corner-decor corner-br"></div>
+
+  <!-- Nav -->
+  <nav id="nav">
+    <a href="index.html" class="nav-logo">AH<span>.</span>ENG</a>
+    <a href="index.html#projects" class="nav-back">Back to Projects</a>
+  </nav>
+
+  <!-- ═══════════════════════════════════════════════════════
+       HERO — EDIT everything marked below
+       ═══════════════════════════════════════════════════════ -->
+  <header class="hero">
+  <!-- Hero -->
+  <section class="hero" id="home">
+    <svg class="atom-bg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+
+  <!-- Orbit -->
+  <circle cx="50" cy="50" r="30"
+          stroke="#ffffff"
+          stroke-width="1"
+          opacity="0.5" />
+
+  <!-- Nucleus -->
+  <circle cx="50" cy="50" r="10"
+          stroke="#ffffff"
+          stroke-width="1.5" />
+
+  <!-- Rotating electron -->
+  <g>
+    <animateTransform
+      attributeName="transform"
+      type="rotate"
+      from="360 50 50"
+      to="0 50 50"
+      dur="60s"
+      repeatCount="indefinite" />
+      
+    <circle cx="80" cy="50" r="3" fill="#ff0000" />
+  </g>
+
+    </svg>
+
+    <!-- EDIT: Project category, e.g. "Structural / FEA" or "Thermal / CFD" -->
+    <div class="hero-eyebrow">[Project Type — e.g. Structural / FEA]</div>
+
+    <!-- EDIT: Title. .solid = white, .outline = stroke-only (ghosted) -->
+    <h1>
+      <div class="solid">[Project Title]</div>
+      <div class="outline">[Subtitle or key word]</div>
+    </h1>
+
+    <div class="hero-sub">
+      <p class="hero-summary">
+        <!-- EDIT: One sentence summary -->
+        [One-line summary — what it is and what problem it solves.]
+        &nbsp;&nbsp;
+        <span class="status-pill">
+          <!-- EDIT: Use class="status-dot wip" if in progress -->
+          <div class="status-dot"></div> COMPLETE
+        </span>
+      </p>
+      <div class="hero-tools">
+        <!-- EDIT: Add/remove tool tags -->
+        <span class="tool-tag">[Tool 1]</span>
+        <span class="tool-tag">[Tool 2]</span>
+        <span class="tool-tag">[Tool 3]</span>
+        <span class="tool-tag">[Tool 4]</span>
+      </div>
+    </div>
+
+    <!-- EDIT: Update DWG number per project (DWG-001, DWG-002 ...) -->
+    <div class="annotation">DWG NO. DWG-001 &nbsp;|&nbsp; REV A &nbsp;|&nbsp; SCALE: N/A</div>
+  </header>
+
+  <!-- ═══════════════════════════════════════════════════════
+       SPEC BAR — 4 key facts about the project
+       ═══════════════════════════════════════════════════════ -->
+  <div class="spec-bar">
+    <div class="spec-cell">
+      <div class="spec-cell-label">Timeline</div>
+      <!-- EDIT -->
+      <div class="spec-cell-val">[e.g. Jan – Apr 2024]</div>
+    </div>
+    <div class="spec-cell">
+      <div class="spec-cell-label">My Role</div>
+      <!-- EDIT -->
+      <div class="spec-cell-val">[e.g. Lead Designer]</div>
+    </div>
+    <div class="spec-cell">
+      <div class="spec-cell-label">Context</div>
+      <!-- EDIT -->
+      <div class="spec-cell-val">[e.g. ME 4210 / SAE Team]</div>
+    </div>
+    <div class="spec-cell">
+      <div class="spec-cell-label">Status</div>
+      <!-- EDIT -->
+      <div class="spec-cell-val red">[Complete / In Progress]</div>
+    </div>
+  </div>
+
+  <div class="content-wrap">
+
+    <!-- ═══════════════════════════════════════════════════
+         01 — OVERVIEW
+         ═══════════════════════════════════════════════════ -->
+    <div class="section-block">
+      <div class="section-label">01 — Overview</div>
+      <h2 class="section-title reveal">Project Overview</h2>
+      <div class="overview-grid">
+        <div>
+          <!-- EDIT: 2–3 paragraphs. Use <strong> for highlighted terms -->
+          <p class="body-text">
+            [Paragraph 1 — Background and motivation. What problem were you solving?
+            What were the constraints or design requirements?]
+          </p>
+          <p class="body-text">
+            [Paragraph 2 — Your approach. What methods, tools, or analysis did you use and why?]
+          </p>
+          <p class="body-text">
+            [Paragraph 3 — Optional. Describe iteration, testing, or the key outcome.]
+          </p>
+        </div>
+
+        <!-- EDIT: Measurable results. Add/remove .result-row as needed -->
+        <div class="results-panel reveal" style="transition-delay:0.15s">
+          <div class="result-row">
+            <span class="result-label">[Metric — e.g. Weight Reduction]</span>
+            <span class="result-val">[e.g. 22%]</span>
+          </div>
+          <div class="result-row">
+            <span class="result-label">[Metric — e.g. Safety Factor]</span>
+            <span class="result-val">[e.g. 3.2]</span>
+          </div>
+          <div class="result-row">
+            <span class="result-label">[Metric — e.g. Efficiency]</span>
+            <span class="result-val">[e.g. 94%]</span>
+          </div>
+          <div class="result-row">
+            <span class="result-label">[Metric — e.g. Cost Saved]</span>
+            <span class="result-val">[e.g. $1,200]</span>
+          </div>
+          <div class="result-row">
+            <span class="result-label">[Metric — optional]</span>
+            <span class="result-val">[value]</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════
+         02 — VISUALS
+         To use real images replace .img-placeholder with:
+         <img src="path/to/image.jpg" class="img-full" alt="..." />
+         ═══════════════════════════════════════════════════ -->
+    <div class="section-block">
+      <div class="section-label">02 — Visuals</div>
+      <h2 class="section-title reveal">CAD Model / Renders</h2>
+
+      <div class="img-placeholder reveal">
+        <div class="img-placeholder-label">[ Main Image — CAD Render or Photo ]</div>
+        <div class="img-placeholder-sub">Replace with: &lt;img src="image.jpg" class="img-full" alt="..."&gt;</div>
+      </div>
+      <!-- EDIT: Caption -->
+      <p class="img-caption">FIG. 1 — [e.g. "SolidWorks assembly — isometric view"]</p>
+
+      <div class="img-grid-2 reveal" style="transition-delay:0.1s">
+        <div class="img-placeholder">
+          <div class="img-placeholder-label">[ Image 2 ]</div>
+          <div class="img-placeholder-sub">e.g. FEA stress plot</div>
+        </div>
+        <div class="img-placeholder">
+          <div class="img-placeholder-label">[ Image 3 ]</div>
+          <div class="img-placeholder-sub">e.g. Physical prototype</div>
+        </div>
+      </div>
+      <!-- EDIT: Caption -->
+      <p class="img-caption">FIG. 2–3 — [Caption for the two images above]</p>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════
+         03 — ENGINEERING PROCESS
+         Add/remove .process-step blocks as needed
+         ═══════════════════════════════════════════════════ -->
+    <div class="section-block">
+      <div class="section-label">03 — Methodology</div>
+      <h2 class="section-title reveal">Engineering Process</h2>
+      <div class="process-list">
+
+        <div class="process-step reveal">
+          <div class="step-num">01</div>
+          <div>
+            <!-- EDIT -->
+            <div class="step-title">[Step 1 — e.g. Requirements & Concept Development]</div>
+            <div class="step-desc">[Describe what you did in this phase.]</div>
+          </div>
+        </div>
+
+        <div class="process-step reveal" style="transition-delay:0.08s">
+          <div class="step-num">02</div>
+          <div>
+            <div class="step-title">[Step 2 — e.g. Analytical Calculations]</div>
+            <div class="step-desc">[Describe the analysis or hand calculations performed.]</div>
+          </div>
+        </div>
+
+        <div class="process-step reveal" style="transition-delay:0.16s">
+          <div class="step-num">03</div>
+          <div>
+            <div class="step-title">[Step 3 — e.g. CAD Modelling]</div>
+            <div class="step-desc">[Describe the CAD work and drawings produced.]</div>
+          </div>
+        </div>
+
+        <div class="process-step reveal" style="transition-delay:0.24s">
+          <div class="step-num">04</div>
+          <div>
+            <div class="step-title">[Step 4 — e.g. Simulation / FEA / CFD]</div>
+            <div class="step-desc">[Describe your simulation setup, solver, and key findings.]</div>
+          </div>
+        </div>
+
+        <div class="process-step reveal" style="transition-delay:0.32s">
+          <div class="step-num">05</div>
+          <div>
+            <div class="step-title">[Step 5 — e.g. Testing & Validation]</div>
+            <div class="step-desc">[Describe physical testing or validation and how results compared to simulation.]</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════
+         04 — CHALLENGES & LEARNINGS
+         ═══════════════════════════════════════════════════ -->
+    <div class="section-block">
+      <div class="section-label">04 — Reflection</div>
+      <h2 class="section-title reveal">Challenges &amp; Learnings</h2>
+      <div class="two-col">
+        <div class="card-panel challenges reveal">
+          <!-- EDIT: Your challenges -->
+          <ul class="card-list">
+            <li>[Challenge 1]</li>
+            <li>[Challenge 2]</li>
+            <li>[Challenge 3]</li>
+          </ul>
+        </div>
+        <div class="card-panel learnings reveal" style="transition-delay:0.1s">
+          <!-- EDIT: Your learnings -->
+          <ul class="card-list">
+            <li>[Learning 1]</li>
+            <li>[Learning 2]</li>
+            <li>[Learning 3]</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════
+         05 — LINKS (delete this block if unused)
+         ═══════════════════════════════════════════════════ -->
+    <div class="section-block">
+      <div class="section-label">05 — Resources</div>
+      <h2 class="section-title reveal">Downloads &amp; Links</h2>
+      <div class="links-row reveal">
+        <!-- EDIT: Update href for each. Remove any you don't have. -->
+        <a href="report.pdf" target="_blank" class="btn btn-primary">Download Report ↗</a>
+        <a href="#" target="_blank" class="btn btn-outline">View on GrabCAD ↗</a>
+        <a href="#" target="_blank" class="btn btn-outline">GitHub Repo ↗</a>
+      </div>
+    </div>
+
+  </div><!-- end content-wrap -->
+
+  <footer>
+    <!-- EDIT: Update DWG number to match hero -->
+    <span class="footer-copy">© 2025 Aditya Halbe &nbsp;·&nbsp; DWG-001 &nbsp;·&nbsp; REV A</span>
+    <a href="index.html#projects" class="footer-back">← Back to All Projects</a>
+  </footer>
+
+  <script>
+    // Cursor — identical to main site
+    const cur = document.getElementById('cursor');
+    const dot = document.getElementById('cursorDot');
+    const ring = document.getElementById('cursorRing');
+    let mx = 0, my = 0, rx = 0, ry = 0;
+    document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+    (function tick() {
+      cur.style.left = mx + 'px'; cur.style.top = my + 'px';
+      dot.style.left = mx + 'px'; dot.style.top = my + 'px';
+      rx += (mx - rx) * 0.1; ry += (my - ry) * 0.1;
+      ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+      requestAnimationFrame(tick);
+    })();
+
+    // Nav scroll
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => nav.classList.toggle('scrolled', scrollY > 50));
+
+    // Scroll reveal
+    const obs = new IntersectionObserver(
+      entries => entries.forEach(e => e.isIntersecting && e.target.classList.add('visible')),
+      { threshold: 0.1 }
+    );
+    document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+  </script>
+</body>
+</html>
+

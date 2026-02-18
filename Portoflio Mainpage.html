@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Your Name — ME Portfolio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow:ital,wght@0,300;0,400;0,600;0,700;0,900;1,300&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #ffffff;
+      --surface: #000000;
+      --line: rgba(2, 2, 2, 0.15);
+      --line-bright: rgba(0, 0, 0, 0.35);
+      --accent: #000000;
+      --accent2: #ff0000;
+      --text: #000000;
+      --muted: #000000;
+      --font-display: 'Times New Roman';
+      --font-mono: 'Share Tech Mono', monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-display);
+      overflow-x: hidden;
+      cursor: none;
+    }
+    /* Custom crosshair cursor */
+    .cursor {
+      width: 20px; height: 20px;
+      position: fixed; top: 0; left: 0;
+      pointer-events: none; z-index: 9999;
+      transform: translate(-50%, -50%);
+    }
+    .cursor::before, .cursor::after {
+      content: '';
+      position: absolute;
+      background: var(--accent);
+    }
+    .cursor::before { width: 1px; height: 100%; left: 50%; transform: translateX(-50%); }
+    .cursor::after  { height: 1px; width: 100%; top: 50%; transform: translateY(-50%); }
+    .cursor-dot {
+      width: 4px; height: 4px; border-radius: 50%;
+      background: var(--accent2);
+      position: fixed; top: 0; left: 0;
+      pointer-events: none; z-index: 9999;
+      transform: translate(-50%, -50%);
+    }
+    .cursor-ring {
+      width: 44px; height: 44px;
+      border: 2px solid rgb(255, 251, 0);
+      position: fixed; top: 0; left: 0;
+      pointer-events: none; z-index: 9998;
+      transform: translate(-50%, -50%);
+    }
+
+    /* Blueprint corner marks */
+    .corner-decor {
+      position: fixed;
+      width: 30px; height: 30px;
+      pointer-events: none;
+      z-index: 50;
+      opacity: 0.4;
+    }
+    .corner-decor::before, .corner-decor::after {
+      content: '';
+      position: absolute;
+      background: var(--accent);
+    }
+    .corner-decor::before { width: 100%; height: 1px; }
+    .corner-decor::after  { width: 1px; height: 100%; }
+    .corner-tl { top: 20px; left: 20px; }
+    .corner-tr { top: 20px; right: 20px; transform: scaleX(-1); }
+    .corner-bl { bottom: 20px; left: 20px; transform: scaleY(-1); }
+    .corner-br { bottom: 20px; right: 20px; transform: scale(-1); }
+
+    /* Nav */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 22px 52px;
+      z-index: 100;
+      transition: background 0.3s, border-color 0.3s;
+    }
+    nav.scrolled {
+      background: rgba(255, 0, 0, 0.9);
+      border-bottom: 1px solid var(--line-bright);
+      backdrop-filter: blur(12px);
+    }
+    .nav-logo {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      color: var(--accent);
+      letter-spacing: 0.05em;
+    }
+    .nav-logo span { color: var(--accent2); }
+    .nav-links {
+      display: flex; gap: 36px; list-style: none;
+      position: absolute; left: 50%; transform: translateX(-50%);
+    }
+    .nav-links a {
+      font-family: var(--font-mono);
+      font-size: 20px;
+      color: var(--muted);
+      text-decoration: none;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    .nav-links a::before { content: '// '; color: var(--accent2); opacity: 0.6; }
+    .nav-links a:hover { color: var(--accent); }
+
+    /* Hero */
+    .hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column; justify-content: center;
+      padding: 120px 52px 80px;
+      position: relative;
+      overflow: hidden;
+    }
+    .atom-bg {
+      position: absolute;
+      right: -80px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 520px;
+      height: 520px;
+      opacity: 1;
+    }
+    .hero-eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--accent2);
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+      opacity: 0;
+      animation: fadeUp 0.8s ease 0.2s forwards;
+    }
+    .hero-eyebrow::before { content: '[ '; }
+    .hero-eyebrow::after  { content: ' ]'; }
+    .hero h1 {
+      font-size: clamp(52px, 9vw, 130px);
+      font-weight: 900;
+      line-height: 0.9;
+      letter-spacing: -0.04em;
+      opacity: 0;
+      animation: fadeUp 0.8s ease 0.35s forwards;
+    }
+    .hero h1 .name-line { color: var(--text); }
+    .hero h1 .title-line {
+      color: transparent;
+      -webkit-text-stroke: 1px rgba(77, 184, 255, 0.4);
+    }
+    .hero-meta {
+      margin-top: 48px;
+      display: flex; align-items: flex-start; gap: 80px;
+      opacity: 0;
+      animation: fadeUp 0.8s ease 0.55s forwards;
+    }
+    .hero-desc {
+      font-family: var(--font-mono);
+      font-size: 1rem;
+      color: var(--text);
+      line-height: 2;
+      max-width: 420px;
+    }
+    .hero-stats {
+      display: flex; flex-direction: column;
+      border: 1px solid var(--line-bright);
+      padding: 8px 24px;
+      position: relative;
+      min-width: 260px;
+    }
+    .hero-stats::before {
+      content: 'STUDENT STATS';
+      position: absolute; top: -10px; left: 16px;
+      background: var(--bg);
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      color: var(--accent);
+      letter-spacing: 0.12em;
+      padding: 0 8px;
+    }
+    .hero-stat {
+      display: flex; justify-content: space-between; align-items: baseline;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .hero-stat:last-child { border-bottom: none; }
+    .hero-stat-val {
+      font-size: 1.8rem;
+      font-weight: 900;
+      color: var(--accent);
+      letter-spacing: -0.03em;
+      min-width: 60px;
+    }
+    .hero-stat-label {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+    }
+    .hero-cta {
+      margin-top: 52px;
+      display: flex; gap: 16px;
+      opacity: 0;
+      animation: fadeUp 0.8s ease 0.7s forwards;
+    }
+    .btn {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 13px 28px;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      text-decoration: none;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      border: none;
+      cursor: none;
+      transition: all 0.2s;
+    }
+    .btn-primary { background: var(--accent); color: var(--bg); }
+    .btn-primary:hover { background: #000000; transform: translateY(-2px); }
+    .btn-outline {
+      background: transparent;
+      color: var(--accent);
+      border: 1px solid var(--line-bright);
+    }
+    .btn-outline:hover { border-color: var(--accent); transform: translateY(-2px); }
+    .annotation {
+      position: absolute;
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+    }
+    .annotation-br { bottom: 48px; right: 52px; text-align: right; }
+
+    /* Divider */
+    .divider {
+      display: flex; align-items: center; gap: 20px;
+      padding: 0 52px;
+    }
+    .divider-line { flex: 1; height: 1px; background: var(--line-bright); }
+    .divider-label {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      color: var(--muted);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+    .divider-tick {
+      width: 6px; height: 6px;
+      border: 1px solid var(--accent);
+      transform: rotate(45deg);
+    }
+
+    /* Section */
+    section { padding: 100px 52px; }
+    .section-label {
+      font-family: var(--font-mono);
+      font-size: rem;
+      color: var(--accent2);
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    .section-title {
+      font-size: clamp(30px, 5vw, 58px);
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      line-height: 1;
+    }
+
+    /* About */
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 80px;
+      align-items: start;
+      margin-top: 52px;
+    }
+    .about-body {
+      font-size: 1.05rem;
+      font-weight: 300;
+      line-height: 1.75;
+    }
+    .about-body strong { color: var(--accent); font-weight: 600; }
+    .skills-section { margin-top: 40px; }
+    .skills-group-label {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      color: var(--accent2);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .skills-row {
+      display: flex; flex-wrap: wrap; gap: 8px;
+      margin-bottom: 20px;
+    }
+    .skill-tag {
+      padding: 5px 12px;
+      border: 1px solid var(--line-bright);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+      transition: all 0.2s;
+    }
+    .skill-tag:hover { border-color: var(--accent); color: var(--accent); }
+    .skill-tag.hot { border-color: rgba(255,107,53,0.4); color: var(--accent2); }
+
+    /* Spec sheet */
+    .spec-panel {
+      border: 1px solid var(--line-bright);
+      padding: 28px;
+      position: relative;
+    }
+    .spec-panel::before {
+      content: 'SPEC SHEET v2.0';
+      position: absolute; top: -10px; left: 16px;
+      background: var(--bg);
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      color: var(--accent);
+      letter-spacing: 0.12em;
+      padding: 0 8px;
+    }
+    .spec-row {
+      display: flex; justify-content: space-between; align-items: baseline;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .spec-row:last-child { border-bottom: none; }
+    .spec-key {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+    }
+    .spec-val {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--text);
+      text-align: right;
+    }
+    .spec-val.accent { color: var(--accent); }
+
+    /* Projects */
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1px;
+      background: var(--line-bright);
+      margin-top: 52px;
+      border: 1px solid var(--line-bright);
+    }
+    .project-card {
+      background: var(--bg);
+      padding: 36px;
+      position: relative;
+      text-decoration: none;
+      color: inherit;
+      cursor: none;
+      transition: background 0.25s;
+      overflow: hidden;
+    }
+    .project-card:hover { background: var(--surface); }
+    .project-card::before {
+      content: attr(data-num);
+      position: absolute;
+      top: 28px; right: 28px;
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      color: var(--line-bright);
+      letter-spacing: 0.1em;
+    }
+    .project-card::after {
+      content: '';
+      position: absolute;
+      bottom: 0; right: 0;
+      width: 0; height: 0;
+      border-left: 20px solid transparent;
+      border-bottom: 20px solid var(--line-bright);
+      transition: border-color 0.25s;
+    }
+    .project-card:hover::after { border-bottom-color: var(--accent); }
+    .project-status {
+      display: flex; align-items: center; gap: 6px;
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      color: var(--muted);
+      margin-bottom: 10px;
+      letter-spacing: 0.08em;
+    }
+    .status-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: #3ddc84;
+      box-shadow: 0 0 6px #3ddc84;
+      animation: pulse 2.5s ease-in-out infinite;
+    }
+    .status-dot.wip { background: var(--accent2); box-shadow: 0 0 6px var(--accent2); }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+    .project-type {
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      color: var(--accent2);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+    .project-title {
+      font-size: 1.35rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      line-height: 1.2;
+      margin-bottom: 14px;
+      transition: color 0.2s;
+    }
+    .project-card:hover .project-title { color: var(--accent); }
+    .project-desc {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--muted);
+      line-height: 1.75;
+      margin-bottom: 24px;
+    }
+    .project-footer { display: flex; align-items: center; justify-content: space-between; }
+    .project-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+    .project-tag {
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      color: var(--muted);
+      border: 1px solid var(--line);
+      padding: 3px 8px;
+    }
+    .project-link {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--accent);
+      letter-spacing: 0.08em;
+      transition: letter-spacing 0.2s;
+    }
+    .project-card:hover .project-link { letter-spacing: 0.14em; }
+
+    /* Coursework */
+    .courses-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-top: 52px;
+    }
+    .course-card {
+      border: 1px solid var(--line-bright);
+      padding: 24px;
+      position: relative;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .course-card:hover {
+      border-color: var(--accent);
+      background: rgba(77, 184, 255, 0.04);
+    }
+    .course-icon { font-size: 1.6rem; margin-bottom: 14px; display: block; }
+    .course-title { font-size: 0.95rem; font-weight: 700; margin-bottom: 8px; }
+    .course-desc {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+    .course-grade {
+      position: absolute; top: 20px; right: 20px;
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      color: var(--accent2);
+    }
+
+    /* Experience */
+    .exp-list { margin-top: 52px; }
+    .exp-item {
+      display: grid;
+      grid-template-columns: 180px 1fr;
+      gap: 40px;
+      padding: 36px 0;
+      border-top: 1px solid var(--line-bright);
+    }
+    .exp-item:last-child { border-bottom: 1px solid var(--line-bright); }
+    .exp-date { font-family: var(--font-mono); font-size: 0.7rem; color: var(--muted); padding-top: 4px; }
+    .exp-role { font-size: 1.1rem; font-weight: 700; }
+    .exp-org { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent); margin-top: 4px; }
+    .exp-desc { font-family: var(--font-mono); font-size: 0.75rem; color: var(--muted); line-height: 1.8; margin-top: 12px; }
+    .exp-tags { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+    .exp-tag {
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      color: var(--accent2);
+      border: 1px solid rgba(255,107,53,0.25);
+      padding: 2px 8px;
+    }
+
+    /* Contact */
+    .contact-wrap {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: start;
+      margin-top: 52px;
+    }
+    .contact-big {
+      font-size: clamp(38px, 6vw, 76px);
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      line-height: 0.95;
+    }
+    .contact-big em {
+      font-style: normal;
+      color: transparent;
+      -webkit-text-stroke: 1px var(--accent);
+    }
+    .contact-email-wrap { margin-top: 40px; }
+    .contact-email-label { font-family: var(--font-mono); font-size: 1rem; color: var(--muted); letter-spacing: 0.12em; margin-bottom: 8px; }
+    .contact-email {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--accent);
+      text-decoration: none;
+      display: flex; align-items: center; gap: 10px;
+      transition: gap 0.2s;
+    }
+    .contact-email:hover { gap: 16px; }
+    .contact-links-list { display: flex; flex-direction: column; }
+    .contact-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 22px 0;
+      border-top: 1px solid var(--line-bright);
+      text-decoration: none;
+      color: var(--text);
+      font-family: var(--font-mono);
+      font-size: 2rem;
+      cursor: none;
+      transition: color 0.2s, padding-left 0.2s;
+    }
+    .contact-link:last-child { border-bottom: 1px solid var(--line-bright); }
+    .contact-link:hover { color: var(--accent); padding-left: 8px; }
+    .contact-link-id { font-size: 0.6rem; color: var(--muted); margin-right: 12px; }
+
+    /* Footer */
+    footer {
+      padding: 32px 52px;
+      border-top: 1px solid var(--line-bright);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .footer-copy { font-family: var(--font-mono); font-size: 0.65rem; color: var(--muted); }
+    .footer-top { font-family: var(--font-mono); font-size: 0.65rem; color: var(--muted); text-decoration: none; cursor: none; transition: color 0.2s; }
+    .footer-top:hover { color: var(--accent); }
+
+    /* Animations */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(28px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .reveal {
+      opacity: 0; transform: translateY(36px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      nav { padding: 18px 24px; }
+      .nav-links { display: none; }
+      .hero, section { padding-left: 24px; padding-right: 24px; }
+      .hero { padding-top: 100px; }
+      .hero-meta { flex-direction: column; gap: 40px; }
+      .about-grid, .contact-wrap { grid-template-columns: 1fr; gap: 48px; }
+      .projects-grid { grid-template-columns: 1fr; }
+      .courses-grid { grid-template-columns: 1fr; }
+      .exp-item { grid-template-columns: 1fr; gap: 8px; }
+      .divider { padding: 0 24px; }
+      footer { flex-direction: column; gap: 10px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-dot" id="cursorDot"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+
+  <div class="corner-decor corner-tl"></div>
+  <div class="corner-decor corner-tr"></div>
+  <div class="corner-decor corner-bl"></div>
+  <div class="corner-decor corner-br"></div>
+
+  <!-- Nav -->
+  <nav id="nav">
+    <ul class="nav-links">
+      <li><a href="#about">about</a></li>
+      <li><a href="#projects">projects</a></li>
+      <li><a href="#courses">coursework</a></li>
+      <li><a href="#experience">experience</a></li>
+      <li><a href="#contact">contact</a></li>
+    </ul>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero" id="home">
+    <svg class="atom-bg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+
+  <!-- Orbit -->
+  <circle cx="50" cy="50" r="30"
+          stroke="#000000"
+          stroke-width="1"
+          opacity="0.5" />
+
+  <!-- Nucleus -->
+  <circle cx="50" cy="50" r="10"
+          stroke="#000000"
+          stroke-width="1.5" />
+
+  <!-- Rotating electron -->
+  <g>
+    <animateTransform
+      attributeName="transform"
+      type="rotate"
+      from="0 50 50"
+      to="360 50 50"
+      dur="60s"
+      repeatCount="indefinite" />
+      
+    <circle cx="80" cy="50" r="3" fill="#ff0000" />
+  </g>
+
+    </svg>
+
+    <div class="hero-eyebrow">Mechanical Engineering Student</div>
+    <h1>
+      <div class="name-line">Aditya Halbe</div>  
+    </h1>
+    <div class="hero-meta">
+      <p class="hero-desc">
+        M.S - Mechanical Engineering - Class of 2026<br/>
+        Georgia Institue of Technology, Atlanta<br/> 
+        B.Tech - Mechanical Engineering - Class of 2024<br/>
+        MIT World Peace University, Pune<br/>
+      </p>
+      <div class="hero-stat">
+          <span class="hero-stat-val">5+</span>
+          <span class="hero-stat-label">Engineering Projects</span>
+        </div>
+        <div class="hero-stat">
+          <span class="hero-stat-val">1</span>
+          <span class="hero-stat-label">Internship</span>
+        </div>
+        <div class="hero-stat">
+          <span class="hero-stat-val">∞</span>
+          <span class="hero-stat-label">Iterations to perfect</span>
+        </div>
+      </div>
+    </div>
+    <div class="hero-cta">
+      <a href="#projects" class="btn btn-primary">View Projects</a>
+      <a href="resume.pdf" class="btn btn-outline" target="_blank">Download Resume ↗</a>
+    </div>
+  </section>
+
+  <div class="divider"><div class="divider-tick"></div><div class="divider-line"></div><div class="divider-label">About</div><div class="divider-line"></div><div class="divider-tick"></div></div>
+
+  <!-- About -->
+  <section id="about">
+    <div class="section-label">01 — Profile</div>
+    <h2 class="section-title reveal">About Me</h2>
+    <div class="about-grid">
+      <div class="reveal">
+        <p class="about-body">
+          I'm a <strong>Mechanical Engineering Student</strong> with a deep interest in product design, thermal systems, and robotics. I love the full cycle — from sketching concepts and building CAD assemblies to running FEA simulations and holding the final machined part. <br/><br/>
+          Areas of specialization are in design optimization, advanced mechanical systems and systems engineering,. Experienced in automotive and EV systems, UAVs, propulsion and mobility mechanisms, and structural analysis, with strong proficiency in CAD/CAE and MBSE. <br/><br/>
+          Seeking technical roles in the automotive, electric mobility, HVAC, manufacturing, aerospace/defense, or robotics domains. <br/><br/>
+        </p>
+        <div class="skills-section">
+          <div class="skills-group-label">Software & CAD</div>
+          <div class="skills-row">
+            <span class="skill-tag hot">SolidWorks</span>
+            <span class="skill-tag hot">ANSYS</span>
+            <span class="skill-tag hot">AutoCAD</span>
+            <span class="skill-tag">Fusion 360</span>
+            <span class="skill-tag">MATLAB</span>
+            <span class="skill-tag">SimScale</span>
+          </div>
+          <div class="skills-group-label">Manufacturing & Lab</div>
+          <div class="skills-row">
+            <span class="skill-tag">CNC Machining</span>
+            <span class="skill-tag">3D Printing (FDM/SLA)</span>
+            <span class="skill-tag">TIG/MIG Welding</span>
+            <span class="skill-tag">Laser Cutting</span>
+            <span class="skill-tag">GD&amp;T</span>
+          </div>
+          <div class="skills-group-label">Analysis</div>
+          <div class="skills-row">
+            <span class="skill-tag">FEA / FEM</span>
+            <span class="skill-tag">CFD Basics</span>
+            <span class="skill-tag">Thermodynamics</span>
+            <span class="skill-tag">Statics &amp; Dynamics</span>
+          </div>
+        </div>
+      </div>
+      <div class="spec-panel reveal" style="transition-delay:0.15s">
+        <div class="spec-row"><span class="spec-key">DESIGNATION</span><span class="spec-val accent">M.S. Mechanical Engineering</span></div>
+        <div class="spec-row"><span class="spec-key">INSTITUTION</span><span class="spec-val">Georgia Tech</span></div>
+        <div class="spec-row"><span class="spec-key">EXPECTED GRAD.</span><span class="spec-val">May 2026</span></div>
+        <div class="spec-row"><span class="spec-key">GPA</span><span class="spec-val accent">3.2 / 4.0</span></div>
+        <div class="spec-row"><span class="spec-key">SPECIALIZATION</span><span class="spec-val">Design &amp; Manufacturing</span></div>
+        <div class="spec-row"><span class="spec-key">LOCATION</span><span class="spec-val">Atlanta, Georgia</span></div>
+        <div class="spec-row"><span class="spec-key">SEEKING</span><span class="spec-val accent">Full Time</span></div>
+        <div class="spec-row"><span class="spec-key">STATUS</span><span class="spec-val accent">Available</span></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"><div class="divider-tick"></div><div class="divider-line"></div><div class="divider-label">Projects</div><div class="divider-line"></div><div class="divider-tick"></div></div>
+
+  <!-- Projects -->
+  <section id="projects">
+    <div class="section-label">02 — Engineering Work</div>
+    <h2 class="section-title reveal">Projects</h2>
+    <div class="projects-grid">
+
+      <a class="project-card reveal" href="#" data-num="2025" target="_blank">
+        <div class="project-status"><div class="status-dot"></div> COMPLETE</div>
+        <div class="project-type">Mechanical / Design</div>
+        <div class="project-title">Lunar Rover Subsystem Design</div>
+        <div class="project-footer">
+          <div class="project-tags"><span class="project-tag">SolidWorks</span><span class="project-tag">MATLAB</span><span class="project-tag">Design Tools</span></div>
+          <span class="project-link">VIEW →</span>
+        </div>
+      </a>
+
+      <a class="project-card reveal" href="#" data-num="2025" target="_blank" style="transition-delay:0.1s">
+        <div class="project-status"><div class="status-dot"></div> COMPLETE</div>
+        <div class="project-type">Mechanical / Systems</div>
+        <div class="project-title">Low Cost Missile Defence System Design</div>
+        <div class="project-footer">
+          <div class="project-tags"><span class="project-tag">SolidWorks</span><span class="project-tag">MBSE</span><span class="project-tag">Magic Draw</span></div>
+          <span class="project-link">VIEW →</span>
+        </div>
+      </a>
+
+      <a class="project-card reveal" href="#" data-num="2025" target="_blank" style="transition-delay:0.15s">
+        <div class="project-status"><div class="status-dot"></div> COMPLETE</div>
+        <div class="project-type">Automotive / Mechatronics</div>
+        <div class="project-title">Ninebot GoKart </div>
+        <div class="project-footer">
+          <div class="project-tags"><span class="project-tag">Fusion 360</span><span class="project-tag">Arduino</span><span class="project-tag">3D Printing</span></div>
+          <span class="project-link">VIEW →</span>
+        </div>
+      </a>
+
+      <a class="project-card reveal" href="#" data-num="2025" target="_blank" style="transition-delay:0.2s">
+        <div class="project-status"><div class="status-dot"></div> COMPLETE</div>
+        <div class="project-type">Mechanical / Design</div>
+        <div class="project-title">UAV Design optimization</div>
+        <div class="project-footer">
+          <div class="project-tags"><span class="project-tag">SolidWorks</span><span class="project-tag">MATLAB</span><span class="project-tag">SimuLink</span></div>
+          <span class="project-link">VIEW →</span>
+        </div>
+      </a>
+
+    </div>
+  </section>
+
+  <div class="divider"><div class="divider-tick"></div><div class="divider-line"></div><div class="divider-label">Coursework</div><div class="divider-line"></div><div class="divider-tick"></div></div>
+
+  <!-- Coursework -->
+  <section id="courses">
+    <div class="section-label">03 — Academic Foundation</div>
+    <h2 class="section-title reveal">Core Coursework</h2>
+    <div class="courses-grid">
+      <div class="course-card reveal"><span class="course-icon">⚙️</span><div class="course-title">Machine Design</div><div class="course-desc">Shafts, bearings, gears, fasteners — selection and design of mechanical components under realistic loading conditions.</div></div>
+      <div class="course-card reveal" style="transition-delay:0.08s"><span class="course-icon">🔥</span><div class="course-title">Thermodynamics II</div><div class="course-desc">Power cycles, refrigeration, combustion analysis, and second-law applications to real engineering systems.</div></div>
+      <div class="course-card reveal" style="transition-delay:0.16s"></span><span class="course-icon">🌊</span><div class="course-title">Fluid Mechanics</div><div class="course-desc">Internal and external flows, pipe systems, turbomachinery, and an introduction to computational fluid dynamics.</div></div>
+      <div class="course-card reveal" style="transition-delay:0.24s"></span><span class="course-icon">📐</span><div class="course-title">Mechanics of Materials</div><div class="course-desc">Stress, strain, deflection, failure theories, and fatigue analysis for structural design.</div></div>
+      <div class="course-card reveal" style="transition-delay:0.32s"><span class="course-icon">🤖</span><div class="course-title">Control Systems</div><div class="course-desc">Transfer functions, Laplace transforms, PID control design, Bode plots, and root locus analysis.</div></div>
+      <div class="course-card reveal" style="transition-delay:0.40s"><span class="course-icon">🏭</span><div class="course-title">Manufacturing Processes</div><div class="course-desc">Casting, forming, machining, welding, and additive manufacturing — theory and hands-on lab work.</div></div>
+    </div>
+  </section>
+
+  <div class="divider"><div class="divider-tick"></div><div class="divider-line"></div><div class="divider-label">Experience</div><div class="divider-line"></div><div class="divider-tick"></div></div>
+
+  <!-- Experience -->
+  <section id="experience">
+    <div class="section-label">04 — Work History</div>
+    <h2 class="section-title reveal">Experience</h2>
+    <div class="exp-list">
+
+      <div class="exp-item reveal">
+        <div class="exp-date">May 2024 — Aug 2024</div>
+        <div>
+          <div class="exp-role">Mechanical Engineering Intern</div>
+          <div class="exp-org">Company Name — City, Country</div>
+          <div class="exp-desc">Assisted the design team in updating existing product drawings to current GD&amp;T standards. Ran FEA studies on bracket assemblies to support a weight-reduction initiative. Reduced average report generation time by building a MATLAB analysis template.</div>
+          <div class="exp-tags"><span class="exp-tag">SolidWorks</span><span class="exp-tag">ANSYS</span><span class="exp-tag">MATLAB</span><span class="exp-tag">GD&amp;T</span></div>
+        </div>
+      </div>
+
+      <div class="exp-item reveal" style="transition-delay:0.1s">
+        <div class="exp-date">Sep 2023 — Present</div>
+        <div>
+          <div class="exp-role">Design Lead — Suspension</div>
+          <div class="exp-org">University Formula SAE / Engineering Design Team</div>
+          <div class="exp-desc">Leading the suspension subsystem for the team's open-wheel formula car. Responsible for upright, A-arm, and push-rod design, FEA validation, and manufacturing liaison with sponsors.</div>
+          <div class="exp-tags"><span class="exp-tag">Suspension Design</span><span class="exp-tag">FEA</span><span class="exp-tag">CNC Machining</span><span class="exp-tag">Team Leadership</span></div>
+        </div>
+      </div>
+
+      <div class="exp-item reveal" style="transition-delay:0.2s">
+        <div class="exp-date">Jan 2023 — Apr 2023</div>
+        <div>
+          <div class="exp-role">Undergraduate Research Assistant</div>
+          <div class="exp-org">Thermal Sciences Lab — Your University</div>
+          <div class="exp-desc">Supported an ongoing heat transfer research project. Fabricated test rigs, conducted experiments, processed data in MATLAB, and contributed to a conference paper submission.</div>
+          <div class="exp-tags"><span class="exp-tag">Research</span><span class="exp-tag">Data Analysis</span><span class="exp-tag">MATLAB</span></div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <div class="divider"><div class="divider-tick"></div><div class="divider-line"></div><div class="divider-label">Contact</div><div class="divider-line"></div><div class="divider-tick"></div></div>
+
+  <!-- Contact -->
+  <section id="contact">
+    <div class="section-label">05 — Get in Touch</div>
+    <div class="contact-wrap">
+      <div class="reveal">
+        <h2 class="contact-big">Let's<br /><em>build</em><br />something.</h2>
+        <div class="contact-email-wrap">
+          <div class="contact-email-label">PRIMARY CONTACT</div>
+          <a href="mailto:your@email.com" class="contact-email">aditya170x@gmail.com →</a>
+        </div>
+      </div>
+      <div class="reveal" style="transition-delay:0.15s">
+        <div class="contact-links-list">
+          <a href="https://linkedin.com/in/aditya-halbe-3a5666191/" class="contact-link" target="_blank"><span><span class="contact-link-id">01 /</span> LinkedIn</span><span>↗</span></a>
+          <a href="https://github.com/AfterburnerAD19" class="contact-link" target="_blank"><span><span class="contact-link-id">02 /</span> GitHub</span><span>↗</span></a>
+          <a href="resume.pdf" class="contact-link" target="_blank"><span><span class="contact-link-id">03 /</span> Download Portfolio</span><span>↗</span></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span class="footer-copy">© 2025 Your Name · Mechanical Engineering Portfolio · REV A</span>
+    <a href="#home" class="footer-top">[ RETURN TO TOP ↑ ]</a>
+  </footer>
+
+  <script>
+    // Cursor
+    const cur = document.getElementById('cursor');
+    const dot = document.getElementById('cursorDot');
+    const ring = document.getElementById('cursorRing');
+    let mx = 0, my = 0, rx = 0, ry = 0;
+    document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+    (function tick() {
+      cur.style.left = mx + 'px'; cur.style.top = my + 'px';
+      dot.style.left = mx + 'px'; dot.style.top = my + 'px';
+      rx += (mx - rx) * 0.1; ry += (my - ry) * 0.1;
+      ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+      requestAnimationFrame(tick);
+    })();
+
+    // Nav
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => nav.classList.toggle('scrolled', scrollY > 50));
+
+    // Scroll reveal
+    const obs = new IntersectionObserver(
+      entries => entries.forEach(e => e.isIntersecting && e.target.classList.add('visible')),
+      { threshold: 0.12 }
+    );
+    document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+  </script>
+</body>
+</html>
