@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Home</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #ffffff;
+      overflow-x: hidden;
+    }
+
+    .hero {
+      position: relative;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .atom-bg {
+      position: absolute;
+      right: -80px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 520px;
+      height: 520px;
+      opacity: 0.5;
+    }
+
+    .content {
+      position: relative;
+      z-index: 2;
+    }
+
+    a {
+      text-decoration: none;
+      color: black;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+<div class="hero">
+
+  <!-- Atom Animation -->
+  <svg class="atom-bg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+
+    <!-- Orbit -->
+    <circle cx="50" cy="50" r="30"
+            stroke="#000000"
+            stroke-width="1"
+            opacity="0.5" />
+
+    <!-- Nucleus -->
+    <circle cx="50" cy="50" r="10"
+            stroke="#000000"
+            stroke-width="1.5" />
+
+    <!-- Rotating electron -->
+    <g>
+      <animateTransform
+        attributeName="transform"
+        type="rotate"
+        from="360 50 50"
+        to="0 50 50"
+        dur="40s"
+        repeatCount="indefinite" />
+      
+      <circle cx="80" cy="50" r="3" fill="#ff0000" />
+    </g>
+
+  </svg>
+
+  <div class="content">
+    <h1>Welcome</h1>
+    <p>This is the homepage.</p>
+    <a href="about.html">Go to About</a>
+  </div>
+
+</div>
+
+</body>
+</html>
